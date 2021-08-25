@@ -47,4 +47,19 @@ class UtilsTest {
         ByteArrayInputStream rubrica = new ByteArrayInputStream(assinatura);
         assertTrue(verificador.verifique(entrada, rubrica));
     }
+
+    @Test
+    void calcularHash() {
+        final String msg = "A vida é bela!";
+        final String hashHex = "cc3808ea2ab49713a67424a6b109db4f1d8c6b776f5429a8c8c61abc60f31c7c";
+
+        byte[] sha256 = AssinaturaDigital.hash(msg);
+        assertEquals(hashHex, AssinaturaDigital.toHex(sha256));
+    }
+
+    @Test
+    void algoritmoInexistenteGeraFalha() {
+        assertThrows(RuntimeException.class,
+                () -> AssinaturaDigital.hash("x", new byte[1]));
+    }
 }

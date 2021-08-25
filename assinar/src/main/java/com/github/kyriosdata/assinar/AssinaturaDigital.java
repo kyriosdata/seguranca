@@ -7,6 +7,7 @@
 package com.github.kyriosdata.assinar;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.Certificate;
 
@@ -24,12 +25,12 @@ public final class AssinaturaDigital {
     /**
      * Formato hexadecimal.
      */
-    private static final String HEXA = "%02x";
+    private static final String HEX = "%02x";
 
     /**
      * Algoritmo empregado para produção do valor de hash.
      */
-    private static final String ALGORITHM = "SHA-256";
+    public static final String ALGORITHM = "SHA-256";
 
     private static final String STORE_TYPE = "PKCS12";
 
@@ -112,6 +113,19 @@ public final class AssinaturaDigital {
     }
 
     /**
+     * Obtém o valor de hash para a sequência de caracteres fornecida.
+     * O algoritmo empregado é definido por {@link #ALGORITHM}.
+     *
+     * @param conteudo Conteúdo cujo valor de hash é desejado.
+     *
+     * @return A sequência de bytes correspondente ao valor de hash
+     * para o argumento de entrada.
+     */
+    public static byte[] hash(final String conteudo) {
+        return hash(conteudo.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
      * Produz o valor de hash para a sequência de bytes fornecida. O
      * algoritmo de hash utilizado é definido pela constante
      * {@link #ALGORITHM}.
@@ -143,7 +157,7 @@ public final class AssinaturaDigital {
             hash.update(conteudo);
             return hash.digest();
         } catch (NoSuchAlgorithmException se) {
-            return new byte[0];
+            throw new RuntimeException("algoritmo não disponível", se);
         }
     }
 
@@ -158,7 +172,7 @@ public final class AssinaturaDigital {
         final StringBuilder str = new StringBuilder(2 * sequencia.length);
 
         for (final byte valor : sequencia) {
-            str.append(String.format(HEXA, valor));
+            str.append(String.format(HEX, valor));
         }
 
         return str.toString();
