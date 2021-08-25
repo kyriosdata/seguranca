@@ -1,6 +1,9 @@
 ## Sequências de ações para segurança
 
-- Gerar par de chaves (keystore: **assinar.keystore**) (senha: **keystore**)
+- Gerar par de chaves
+  - alias: **teste**
+  - keystore: **assinar.keystore**
+  - senha: **keystore**
   - `keytool -genkey -alias teste -keyalg RSA -keystore assinar.keystore -storetype pkcs12`
 - Listar conteúdo de _keystore_  
   - `keytool -list -v -keystore assinar.keystore -storetype PKCS12`
