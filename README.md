@@ -1,2 +1,2 @@
-# seguranca
-Utilitários para funcionalidades pertinentes à segurança
+# Segurança
+Serviços para assinatura digital em Java ([assinatura](assinatura)).
