@@ -10,6 +10,15 @@
 </dependencies>
 ```
 
+## Como referenciar (Gradle)
+
+```groovy
+dependencies {
+    implementation 'com.github.kyriosdata:assinatura'
+}
+```
+
+
 ## Sequências de ações para segurança
 
 - Gerar par de chaves
