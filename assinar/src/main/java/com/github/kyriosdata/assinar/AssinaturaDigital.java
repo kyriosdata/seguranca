@@ -62,7 +62,7 @@ public final class AssinaturaDigital {
      * privada se criada pelo método
      * {@link #paraCriar(String, char[], String)}.
      */
-    private Key chave;
+    private final Key chave;
 
     private AssinaturaDigital(Key chave) {
         this.chave = chave;
@@ -178,18 +178,58 @@ public final class AssinaturaDigital {
         return str.toString();
     }
 
+    /**
+     * Converte sequência de caracteres na versão usando Base64.
+     * 
+     * @param dados Sequência a ser convertida para a Base64.
+     *              
+     * @return Codificação da sequência fornecida na base64.
+     * 
+     * @see #toBase64(byte[]) 
+     * @see #base64ToString(String)
+     * @see #decodeBase64(String) 
+     */
     public static String toBase64(final String dados) {
         return toBase64(dados.getBytes(StandardCharsets.UTF_8));
     }
 
+    /**
+     * Converte sequência de bytes na codificação base64 correspondente.
+     * 
+     * @param dados Sequência de bytes a ser codificada na base64.
+     *              
+     * @return Codificação do vetor de entrada na base64.
+     * 
+     * @see #toBase64(String) 
+     * @see #base64ToString(String) 
+     * @see #decodeBase64(String) 
+     * 
+     */
     public static String toBase64(final byte[] dados) {
         return Base64.getEncoder().encodeToString(dados);
     }
 
+    /**
+     * Decodifica a sequência fornecida na base64.
+     *
+     * @param base64 Sequência codificada na base64.
+     *
+     * @return Sequência de bytes correspondente à entrada
+     * fornecida na base64.
+     */
     public static byte[] decodeBase64(final String base64) {
         return Base64.getDecoder().decode(base64);
     }
 
+    /**
+     * Converte a sequência codificada na base64 para a
+     * sequência de caracteres correspondentes.
+     *
+     * @param base64 Entrada codificada na base64.
+     *
+     * @return Sequência de caracteres correspondente à decodificação
+     * da entrada na base64.
+     */
     public static String base64ToString(final String base64) {
         byte[] bytes = decodeBase64(base64);
         return new String(bytes, StandardCharsets.UTF_8);
