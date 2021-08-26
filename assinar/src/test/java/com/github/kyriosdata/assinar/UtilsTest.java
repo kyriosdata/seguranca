@@ -8,7 +8,7 @@ package com.github.kyriosdata.assinar;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,6 +17,23 @@ class UtilsTest {
     public static final char[] PASSWORD = "keystore".toCharArray();
     public static final String KEYSTORE = "assinar.keystore";
     public static final String ALIAS = "teste";
+
+    @Test
+    void base64Verificacao() {
+        final String casa = "casa";
+        final String base64 = "Y2FzYQ==";
+
+        assertEquals(base64, AssinaturaDigital.toBase64(casa));
+    }
+
+    @Test
+    void toBase64AndFrom() {
+        final String msg = UUID.randomUUID().toString();
+        final String base64 = AssinaturaDigital.toBase64(msg);
+        System.out.println(base64);
+        final String retornado = AssinaturaDigital.base64ToString(base64);
+        assertEquals(msg, retornado);
+    }
 
     @Test
     void tamanhoDaAssinatura() throws Exception {

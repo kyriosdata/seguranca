@@ -9,6 +9,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.Certificate;
+import java.util.Base64;
 
 /**
  * Classe de conveniência para facilitar a criação de
@@ -175,6 +176,23 @@ public final class AssinaturaDigital {
         }
 
         return str.toString();
+    }
+
+    public static String toBase64(final String dados) {
+        return toBase64(dados.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static String toBase64(final byte[] dados) {
+        return Base64.getEncoder().encodeToString(dados);
+    }
+
+    public static byte[] decodeBase64(final String base64) {
+        return Base64.getDecoder().decode(base64);
+    }
+
+    public static String base64ToString(final String base64) {
+        byte[] bytes = decodeBase64(base64);
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     /**
