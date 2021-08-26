@@ -1,3 +1,15 @@
+## Como referenciar (Maven)
+
+```xml
+<dependencies>
+  <dependency>
+    <groupId>com.github.kyriosdata</groupId>
+    <artifactId>assinatura</artifactId>
+    <version>2021.0826.1</version>
+  </dependency>
+</dependencies>
+```
+
 ## Sequências de ações para segurança
 
 - Gerar par de chaves

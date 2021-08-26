@@ -40,9 +40,9 @@
     </properties>
 
     <groupId>com.github.kyriosdata</groupId>
-    <artifactId>assinar</artifactId>
+    <artifactId>assinatura</artifactId>
     <packaging>jar</packaging>
-    <version>2021.0820.0</version>
+    <version>2021.0826.1</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
 
