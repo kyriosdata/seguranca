@@ -152,7 +152,7 @@
         </pluginManagement>
 
         <!-- Define o nome do arquivo a ser gerado (.jar é acrescentada) -->
-        <finalName>exemplo</finalName>
+<!--        <finalName>exemplo</finalName>-->
 
         <plugins>
 

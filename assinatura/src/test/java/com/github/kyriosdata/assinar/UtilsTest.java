@@ -30,7 +30,6 @@ class UtilsTest {
     void toBase64AndFrom() {
         final String msg = UUID.randomUUID().toString();
         final String base64 = AssinaturaDigital.toBase64(msg);
-        System.out.println(base64);
         final String retornado = AssinaturaDigital.base64ToString(base64);
         assertEquals(msg, retornado);
     }
