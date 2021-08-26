@@ -1,12 +1,7 @@
 /**
- * Pacote do repositório de "exemplo". Contém duas classes
- * apenas: (a) {@link com.github.kyriosdata.assinar.Calendario} e
- * (b) {@link com.github.kyriosdata.exemplo.application.console.ProgramaCalendario}.
- * Observe que essa última classe apenas ilustra como um
- * programa em Java pode chamar o código da classe
- * relevante ({@link com.github.kyriosdata.assinar.Calendario}).
+ * Pacote que encapsula serviços para criar, verificar e outros
+ * pertinentes a assinaturas digitais.
  *
- * @see com.github.kyriosdata.assinar.Calendario
- * @see com.github.kyriosdata.exemplo.application.console.ProgramaCalendario
+ * @see com.github.kyriosdata.assinar.AssinaturaDigital
  */
 package com.github.kyriosdata.assinar;

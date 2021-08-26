@@ -1,9 +1,8 @@
-/**
+/*
  * Copyright (c) 2019
  * Fábrica de Software - Instituto de Informática
  * Fábio Nogueira de Lucena
  */
-
 package com.github.kyriosdata.assinar;
 
 import org.junit.jupiter.api.Test;
@@ -18,6 +17,15 @@ class UtilsTest {
     public static final char[] PASSWORD = "keystore".toCharArray();
     public static final String KEYSTORE = "assinar.keystore";
     public static final String ALIAS = "teste";
+
+    @Test
+    void tamanhoDaAssinatura() throws Exception {
+        AssinaturaDigital assinante = AssinaturaDigital.paraCriar(
+                KEYSTORE, PASSWORD, ALIAS);
+        byte[] conteudo = "casa".getBytes();
+        byte[] assinatura = assinante.crie(conteudo);
+        assertEquals(256, assinatura.length);
+    }
 
     @Test
     void criaVerificaAssinaturaBytes() throws Exception {
