@@ -16,10 +16,10 @@
         <antrun.version>3.0.0</antrun.version>
         <checkstyle.plugin.versao>3.1.1</checkstyle.plugin.versao>
         <checkstyle.versao>8.41.1</checkstyle.versao>
-        <dependency.check.versao>6.1.5</dependency.check.versao>
+        <dependency.check.versao>6.2.2</dependency.check.versao>
         <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
         <h2.versao>1.4.200</h2.versao>
-        <jacoco.version>0.8.6</jacoco.version>
+        <jacoco.version>0.8.7</jacoco.version>
         <junit.versao>5.7.0</junit.versao>
         <log4j2.version>2.14.0</log4j2.version>
         <maven.compiler.plugin>3.8.1</maven.compiler.plugin>
@@ -30,7 +30,7 @@
         <pitest.version>1.6.4</pitest.version>
         <pmd.plugin.versao>3.13.0</pmd.plugin.versao>
         <pmd.versao>6.33.0</pmd.versao>
-        <project.info.reports.version>3.1.1</project.info.reports.version>
+        <project.info.reports.version>3.1.2</project.info.reports.version>
         <snyk.versao>1.2.9</snyk.versao>
         <sonar.versao>3.7.0.1746</sonar.versao>
         <spotbugs-maven-plugin>4.2.2</spotbugs-maven-plugin>
@@ -42,7 +42,7 @@
     <groupId>com.github.kyriosdata</groupId>
     <artifactId>assinatura</artifactId>
     <packaging>jar</packaging>
-    <version>2021.0826.1</version>
+    <version>2021.0827.1</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
 
@@ -535,7 +535,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.2.1</version>
+                        <version>1.6.0</version>
                         <executions>
                             <execution>
                                 <goals>
