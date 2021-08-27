@@ -5,22 +5,22 @@
  */
 package com.github.kyriosdata.assinar;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.util.Base64;
+import java.util.Objects;
 
 /**
- * Classe de conveniência para facilitar a criação de
- * assinaturas digitais e a verificação de assinaturas.
- * Uma instância deve ser criada para criar assinaturas,
- * via método {@link #paraCriar(String, char[], String)}
- * e outra específica para verificar, via método
- * {@link #paraVerificar(String, char[], String)}.
+ * Classe que representa um certificado e permite operações
+ * pertinentes como assinar um conteúdo e verificar se o
+ * certificado foi empregado para assinar um documento
+ * fornecido.
  */
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-public final class AssinaturaDigital {
+public final class Certificado {
 
     /**
      * Formato hexadecimal.
@@ -32,84 +32,89 @@ public final class AssinaturaDigital {
      */
     public static final String ALGORITHM = "SHA-256";
 
+    /**
+     * Formato do repositório de certificados. O mesmo de arquivos
+     * no formato .pfx.
+     */
     private static final String STORE_TYPE = "PKCS12";
 
+    /**
+     * Estratégia empregada para assinar documentos.
+     */
     public static final String SIGNING_ALGORITHM = "SHA256withRSA";
 
-    private static PrivateKey getPrivateKey(
-            String keystore,
-            char[] password,
-            String alias) throws Exception {
-        KeyStore keyStore = KeyStore.getInstance(STORE_TYPE);
-        keyStore.load(new FileInputStream(keystore), password);
-        return (PrivateKey) keyStore.getKey(alias, password);
-    }
-
-    private static PublicKey getPublicKey(
-            String keystore,
-            char[] password,
-            String alias) throws Exception {
-        KeyStore keyStore = KeyStore.getInstance(STORE_TYPE);
-        keyStore.load(new FileInputStream(keystore), password);
-        Certificate certificate = keyStore.getCertificate(alias);
-        return certificate.getPublicKey();
-    }
-
     /**
-     * A chave pública ou privada armazenada pela instância.
-     * Será pública se criada pelo método
-     * {@link #paraVerificar(String, char[], String)} e será
-     * privada se criada pelo método
-     * {@link #paraCriar(String, char[], String)}.
+     * Chave pública associada ao certificado carregado.
      */
-    private final Key chave;
-
-    private AssinaturaDigital(Key chave) {
-        this.chave = chave;
-    }
+    private final PublicKey publicKey;
 
     /**
-     * Cria instância apta a criar assinaturas.
+     * Chave privada associada ao certificado carregado.
+     */
+    private final PrivateKey privateKey;
+
+    /**
+     * Identificador do certificado.
+     */
+    private final String id;
+
+    /**
+     * Cria instância de certificado.
      *
-     * @param keystore Repositório contendo chave privada.
+     * @param keystore Arquivo contendo repositório de certificados (formato
+     *                 {@link #STORE_TYPE}).
      * @param password Senha de acesso ao repositório.
-     * @param alias Nome (alias) do certificado.
-     *
-     * @return Instância apta a criar assinaturas digitais
-     * para o certificado indicado.
+     * @param alias Nome do certificado a ser recuperado
+     *              do repositório.
+     * @param id Nome associado ao certificado. Nenhum uso específico é
+     *           previsto senão retornar este valor pelo método
+     *           {@link #getId()}.
      */
-    public static AssinaturaDigital paraCriar(
-            final String keystore,
-            final char[] password,
-            final String alias) {
+    public Certificado(String keystore, String password, String alias, String id) {
+        this(keystore,
+                Objects.requireNonNull(password, "senha null").toCharArray(),
+                alias, id);
+    }
+
+    /**
+     * Cria instância de certificado.
+     *
+     * @param keystore Arquivo contendo repositório de certificados (formato
+     *                 {@link #STORE_TYPE}).
+     * @param senha Senha de acesso ao repositório.
+     * @param alias Nome do certificado a ser recuperado
+     *              do repositório.
+     * @param id Nome associado ao certificado. Nenhum uso específico é
+     *           previsto senão retornar este valor pelo método
+     *           {@link #getId()}.
+     */
+    public Certificado(String keystore, char[] senha, String alias, String id) {
+        Objects.requireNonNull(keystore);
+        Objects.requireNonNull(senha);
+        Objects.requireNonNull(alias);
+        Objects.requireNonNull(id);
+
         try {
-            Key chavePublica = getPrivateKey(keystore, password, alias);
-            return new AssinaturaDigital(chavePublica);
+            KeyStore keyStore = KeyStore.getInstance(STORE_TYPE);
+            keyStore.load(new FileInputStream(keystore), senha);
+
+            privateKey = (PrivateKey) keyStore.getKey(alias, senha);
+            Certificate certificate = keyStore.getCertificate(alias);
+            publicKey = certificate.getPublicKey();
+
+            this.id = id;
         } catch (Exception exp) {
-            throw new RuntimeException("erro ao recuperar chave pública", exp);
+            throw new RuntimeException("erro ao criar certificado", exp);
         }
     }
 
     /**
-     * Cria instância apta a verificar assinaturas.
+     * Retorna o identificador associado ao serviço de segurança (certificado).
      *
-     * @param keystore Repositório contendo chave pública.
-     * @param password Senha de acesso ao repositório.
-     * @param alias Nome (alias) para certificado.
-     *
-     * @return Instância apta a verificar assinaturas
-     * com base na chave pública indicada.
+     * @return Identificador para a instância.
      */
-    public static AssinaturaDigital paraVerificar(
-            final String keystore,
-            final char[] password,
-            final String alias) {
-        try {
-            Key chavePrivada = getPublicKey(keystore, password, alias);
-            return new AssinaturaDigital(chavePrivada);
-        } catch (Exception exp) {
-            throw new RuntimeException("erro ao recuperar chave privada", exp);
-        }
+    public String getId() {
+        return id;
     }
 
     /**
@@ -117,7 +122,6 @@ public final class AssinaturaDigital {
      * O algoritmo empregado é definido por {@link #ALGORITHM}.
      *
      * @param conteudo Conteúdo cujo valor de hash é desejado.
-     *
      * @return A sequência de bytes correspondente ao valor de hash
      * para o argumento de entrada.
      */
@@ -180,14 +184,12 @@ public final class AssinaturaDigital {
 
     /**
      * Converte sequência de caracteres na versão usando Base64.
-     * 
+     *
      * @param dados Sequência a ser convertida para a Base64.
-     *              
      * @return Codificação da sequência fornecida na base64.
-     * 
-     * @see #toBase64(byte[]) 
+     * @see #toBase64(byte[])
      * @see #base64ToString(String)
-     * @see #decodeBase64(String) 
+     * @see #decodeBase64(String)
      */
     public static String toBase64(final String dados) {
         return toBase64(dados.getBytes(StandardCharsets.UTF_8));
@@ -195,15 +197,12 @@ public final class AssinaturaDigital {
 
     /**
      * Converte sequência de bytes na codificação base64 correspondente.
-     * 
+     *
      * @param dados Sequência de bytes a ser codificada na base64.
-     *              
      * @return Codificação do vetor de entrada na base64.
-     * 
-     * @see #toBase64(String) 
-     * @see #base64ToString(String) 
-     * @see #decodeBase64(String) 
-     * 
+     * @see #toBase64(String)
+     * @see #base64ToString(String)
+     * @see #decodeBase64(String)
      */
     public static String toBase64(final byte[] dados) {
         return Base64.getEncoder().encodeToString(dados);
@@ -213,7 +212,6 @@ public final class AssinaturaDigital {
      * Decodifica a sequência fornecida na base64.
      *
      * @param base64 Sequência codificada na base64.
-     *
      * @return Sequência de bytes correspondente à entrada
      * fornecida na base64.
      */
@@ -226,7 +224,6 @@ public final class AssinaturaDigital {
      * sequência de caracteres correspondentes.
      *
      * @param base64 Entrada codificada na base64.
-     *
      * @return Sequência de caracteres correspondente à decodificação
      * da entrada na base64.
      */
@@ -239,13 +236,11 @@ public final class AssinaturaDigital {
      * Cria assinatura para os dados obtidos pelo stream.
      *
      * @param paraAssinar Entrada contendo os dados a serem assinados.
-     *
      * @return A assinatura correspondente aos dados de entrada e
      * a chave privada indicada no momento em que a instância foi
      * criada.
-     *
      * @throws RuntimeException Indica motivo pelo qual não foi
-     * possível criar a instância.
+     *                          possível criar a instância.
      */
     public byte[] crie(InputStream paraAssinar) throws Exception {
         return crie(paraAssinar.readAllBytes());
@@ -254,7 +249,7 @@ public final class AssinaturaDigital {
     /**
      * Verifica a assinatura atribuída ao conteúdo fornecido.
      *
-     * @param assinado Conteúdo para o qual a assinatura foi criada.
+     * @param assinado   Conteúdo para o qual a assinatura foi criada.
      * @param assinatura A assinatura criada para o conteúdo.
      * @return O valor {@code true} se e somente se a assinatura é
      * correspondente ao conteúdo fornecido. Adicionalmente, sabe-se
@@ -271,16 +266,16 @@ public final class AssinaturaDigital {
 
     /**
      * Cria uma assinatura para o vetor de bytes.
-     * @param data Dados a serem assinados.
      *
+     * @param data Dados a serem assinados.
      * @return Assinatura para os bytes fornecidos empregando
      * a chave privada indicada no momento da criação da instância.
      * @throws RuntimeException Indica que não foi possível
-     * criar a assinatura.
+     *                          criar a assinatura.
      */
     public byte[] crie(byte[] data) throws Exception {
         Signature assinante = Signature.getInstance(SIGNING_ALGORITHM);
-        assinante.initSign((PrivateKey) chave);
+        assinante.initSign(privateKey);
         assinante.update(data);
 
         return assinante.sign();
@@ -293,17 +288,17 @@ public final class AssinaturaDigital {
      * @param assinatura Assinatura estabelecida para o conteúdo assinado.
      * @return O valor {@code true} se e somente se a assinatura é válida.
      * @throws RuntimeException Indica motivo pelo qual a verificação
-     * não pode ser realizada de forma satisfatória.
+     *                          não pode ser realizada de forma satisfatória.
      */
     public boolean verifique(
             byte[] assinado,
             byte[] assinatura) {
         try {
-            Signature signature = Signature.getInstance(SIGNING_ALGORITHM);
-            signature.initVerify((PublicKey) chave);
-            signature.update(assinado);
+            Signature assinante = Signature.getInstance(SIGNING_ALGORITHM);
+            assinante.initVerify(publicKey);
+            assinante.update(assinado);
 
-            return signature.verify(assinatura);
+            return assinante.verify(assinatura);
         } catch (Exception exp) {
             throw new RuntimeException("não foi possível verificar assinatura", exp);
         }

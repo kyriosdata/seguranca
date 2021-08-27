@@ -106,7 +106,7 @@
         <repository>
             <id>github</id>
             <name>GitHub kyriosdata Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/kyriosdata/assinatura</url>
+            <url>https://maven.pkg.github.com/kyriosdata/seguranca</url>
         </repository>
     </distributionManagement>
 

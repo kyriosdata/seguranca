@@ -1,3 +1,9 @@
+## Implementação de serviços básicos para assinatura digital
+
+Uma única classe, _Certificado_, é oferecida juntamente com 
+métodos que permitem assinar e verificar assinaturas, com 
+base nas chaves pública e privada de um certificado digital.
+
 ## Como referenciar (Maven)
 
 ```xml
@@ -5,7 +11,7 @@
   <dependency>
     <groupId>com.github.kyriosdata</groupId>
     <artifactId>assinatura</artifactId>
-    <version>2021.0826.1</version>
+    <version>2021.0827.1</version>
   </dependency>
 </dependencies>
 ```
