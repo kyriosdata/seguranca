@@ -1,0 +1,65 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
+  <!-- File suffix -->
+  <id>src</id>
+
+  <!-- File formats (tar.gz gives tons of warnings) -->
+  <formats>
+    <format>zip</format>
+  </formats>
+
+  <!-- Files to include -->
+  <fileSets>
+    <!-- Root files -->
+    <fileSet>
+      <directory>${project.basedir}</directory>
+      <includes>
+        <include>README.md</include>
+        <include>LICENSE</include>
+        <include>pom.xml</include>
+        <include>assembly.xml</include>
+      </includes>
+    </fileSet>
+
+    <!-- Java class files and necessary resources -->
+    <fileSet>
+      <directory>
+        ${project.basedir}/codigos-de-referencia-core/
+      </directory>
+      <includes>
+        <include>pom.xml</include>
+        <include>src/main/java/</include>
+        <include>src/main/resources/*.xsd</include>
+        <include>src/main/resources/*.xsl</include>
+        <include>src/main/resources/signer-policies-information.json</include>
+      </includes>
+    </fileSet>
+
+    <!-- Java class docs -->
+    <fileSet>
+      <directory>${project.basedir}/docs/</directory>
+    </fileSet>
+
+    <!-- Verifier webapp (except for possible modifications) -->
+    <fileSet>
+      <directory>${project.basedir}/verifier/</directory>
+      <includes>
+        <include>src/</include>
+        <include>pom.xml</include>
+      </includes>
+      <excludes>
+        <exclude>src/main/webapp/variants/</exclude>
+      </excludes>
+    </fileSet>
+
+    <!-- Signer webapp -->
+    <fileSet>
+      <directory>${project.basedir}/signer/</directory>
+      <includes>
+        <include>src/</include>
+        <include>pom.xml</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+</assembly>

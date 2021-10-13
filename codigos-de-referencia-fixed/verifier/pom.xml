@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>codigos-de-referencia</artifactId>
+        <groupId>br.ufsc.labsec</groupId>
+        <version>FIXED</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>verifier</artifactId>
+    <version>${global.version}</version>
+    <packaging>war</packaging>
+
+    <build>
+        <plugins>
+            <!-- Build main exploded WAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <packagingExcludes>variants/</packagingExcludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>br.ufsc.labsec</groupId>
+            <artifactId>codigos-de-referencia-core</artifactId>
+            <version>${global.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+</project>

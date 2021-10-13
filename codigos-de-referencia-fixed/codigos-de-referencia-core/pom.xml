@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>codigos-de-referencia</artifactId>
+        <groupId>br.ufsc.labsec</groupId>
+        <version>FIXED</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>codigos-de-referencia-core</artifactId>
+    <version>${global.version}</version>
+
+    <build>
+        <plugins>
+            <!-- Get number of CPUs for parallel testing -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>get-cpu-count</id>
+                        <goals>
+                            <goal>cpu-count</goal>
+                        </goals>
+                        <configuration>
+                            <cpuCount>system.numCores</cpuCount>
+                            <factor>0.5</factor>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Enable parallel testing -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.0</version>
+                <configuration>
+                    <parallel>classes</parallel>
+                    <threadCount>${system.numCores}</threadCount>
+                    <perCoreThreadCount>true</perCoreThreadCount>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

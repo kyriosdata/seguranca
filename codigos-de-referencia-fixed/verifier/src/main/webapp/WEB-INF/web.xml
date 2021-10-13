@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+          https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0">
+
+    <display-name>VerifierServlet</display-name>
+
+    <welcome-file-list>
+        <welcome-file>inicio</welcome-file>
+    </welcome-file-list>
+
+    <!-- Caminho que possui certificados de Âncoras de Confiança e onde serão salvas as
+      Âncoras obtidas pelas URLs -->
+    <context-param>
+        <param-name>trustAnchorsDirectory</param-name>
+        <param-value>/tmp/verificador-de-conformidade/Cache/trust-anchors/</param-value>
+    </context-param>
+    <!-- Lista de URLs para que Âncoras de Confiança sejam obtidas -->
+    <context-param>
+        <param-name>trustAnchorsURLs</param-name>
+        <!-- Os valores devem ser separados por vírgula  -->
+        <param-value>
+            http://acraiz.icpbrasil.gov.br/Certificado_AC_Raiz.crt,
+            http://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv2.crt,
+            http://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv5.crt,
+            http://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv6.crt,
+            http://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv7.crt,
+        </param-value>
+    </context-param>
+
+    <servlet>
+        <servlet-name>CompleteServlet</servlet-name>
+        <servlet-class>
+            br.ufsc.labsec.signature.conformanceVerifier.CompleteServlet
+        </servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>IndexServlet</servlet-name>
+        <servlet-class>
+            br.ufsc.labsec.signature.conformanceVerifier.IndexServlet
+        </servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SimpleServlet</servlet-name>
+        <servlet-class>
+            br.ufsc.labsec.signature.conformanceVerifier.SimpleServlet
+        </servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>CompleteServlet</servlet-name>
+        <url-pattern>/webreport</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>IndexServlet</servlet-name>
+        <url-pattern>/inicio</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SimpleServlet</servlet-name>
+        <url-pattern>/report</url-pattern>
+    </servlet-mapping>
+
+</web-app>
