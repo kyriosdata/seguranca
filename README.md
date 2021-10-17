@@ -12,7 +12,7 @@ Serviços para assinatura digital em Java ([assinatura](assinatura)).
 - AD-RC Assinatura Digital com Referências Completas
 - AD-RA Assinatura Digital com Referências para Arquivamento
 - ASN.1 Abstract Syntax Notation One
-- [CAdES](https://datatracker.ietf.org/doc/html/rfc5126.html) CMS Advanced Electronic Signatures
+- [CAdES](https://datatracker.ietf.org/doc/html/rfc5652.html) CMS Advanced Electronic Signatures
 - CMS Cryptographic Message Syntax
 - LCR Lista de Certificados Revogados
 - LPA Lista de Políticas Aprovadas
