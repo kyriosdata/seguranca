@@ -17,6 +17,7 @@ Serviços para assinatura digital em Java ([assinatura](assinatura)).
 - LCR Lista de Certificados Revogados
 - LPA Lista de Políticas Aprovadas
 - OCSP Online Certificate Status Protocol
+- [PAdES](https://en.wikipedia.org/wiki/PAdES) PDF Advanced Electronic Signatures
 - PBAD Padrão Brasileiro de Assinatura Digital
 - PKCS Public Key Cryptography Standards
 - [XAdES](https://www.w3.org/TR/XAdES/) XML Advanced Electronic Signatures
