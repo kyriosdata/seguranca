@@ -23,8 +23,9 @@ Serviços para assinatura digital em Java ([assinatura](assinatura)).
 - [XAdES](https://www.w3.org/TR/XAdES/) XML Advanced Electronic Signatures
 - XMLDsig XML Digital Signature
 
-## Referências
+## Referências (assinaturas digitais ICP-Brasil)
 
 - [Implementação do Padrão Brasileiro de Assinatura Digital](https://repositorio.ufsc.br/handle/123456789/184587)
 - [Modelagem de um Software Orientado a Componentes para Assinatura Digital](https://repositorio.ufsc.br/handle/123456789/184160)
 - [Implementação de uma API Java de geração de assinaturas digitais de acordo com as regulamentações da ICP-Brasil](https://aberto.univem.edu.br/bitstream/handle/11077/863/Monografia.pdf;sequence=1).
+- [Serviço de Assinatura Digital ICP-Brasil via Web](https://aberto.univem.edu.br/bitstream/handle/11077/967/Monografia_Leandro.pdf?isAllowed=y&sequence=1)
