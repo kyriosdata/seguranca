@@ -23,6 +23,10 @@ Serviços para assinatura digital em Java ([assinatura](assinatura)).
 - [XAdES](https://www.w3.org/TR/XAdES/) XML Advanced Electronic Signatures
 - XMLDsig XML Digital Signature
 
+## Links pertinentes
+
+- [Keystore Explorer](https://github.com/kaikramer/keystore-explorer)
+
 ## Referências (assinaturas digitais ICP-Brasil)
 
 - [Implementação do Padrão Brasileiro de Assinatura Digital](https://repositorio.ufsc.br/handle/123456789/184587)
