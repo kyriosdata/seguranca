@@ -65,7 +65,13 @@ public class Cria {
     public static void main(String[] args) throws Exception {
         KeyPair acKeyPair = genKeyPair(4096);
 
-        String acSubject = "C=BR,O=TRT2,CN=AC Test";
+        // Detalhes em https://www.in.gov.br/en/web/dou/-/portaria-n-103-de-8-de-marco-de-2021-307484928
+        // O (Organization name): ICP-Brasil
+        // CN (Common Name) Nome da autoridade certificadora
+        // OU (Organizational Unit)
+        // C (Country)
+        String acSubject = "C=BR,O=ICP-Brasil,CN=Fake CA";
+
         // criar AC com validade de 30 anos (365 * 30)
         X509Certificate acCert = createAcCert(acSubject, new BigInteger("1234"), 365 * 30, acKeyPair);
         saveToKeystore(acCert, acKeyPair.getPrivate(), "actest.jks", "PKCS12");
