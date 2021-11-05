@@ -26,6 +26,7 @@ Serviços para assinatura digital em Java ([assinatura](assinatura)).
 ## Links pertinentes
 
 - [Keystore Explorer](https://github.com/kaikramer/keystore-explorer)
+- [Demoiselle Signer](https://www.frameworkdemoiselle.gov.br/v3/signer/docs/index.html)
 
 ## Referências (assinaturas digitais ICP-Brasil)
 
