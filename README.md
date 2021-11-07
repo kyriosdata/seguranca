@@ -27,6 +27,7 @@ Serviços para assinatura digital em Java ([assinatura](assinatura)).
 
 - [Keystore Explorer](https://github.com/kaikramer/keystore-explorer)
 - [Demoiselle Signer](https://www.frameworkdemoiselle.gov.br/v3/signer/docs/index.html)
+- Formatos de certificados e diferenças entre eles (https://comodosslstore.com/resources/cer-vs-crt-the-technical-difference-how-to-convert-them/)
 
 ## Referências (assinaturas digitais ICP-Brasil)
 
