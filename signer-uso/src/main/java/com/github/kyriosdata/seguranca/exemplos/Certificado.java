@@ -16,12 +16,14 @@ import java.security.cert.X509Certificate;
  */
 public class Certificado {
 
-    final String CER
+    final static String CER = "src/main/resources/keystore.cer";
+    final static String CRT = "src/main/resources/keystore.crt";
+    final static String PEM = "src/main/resources/keystore.pem";
 
     public static void main(String[] args) throws Exception {
         // Arquivos: .cer, .crt (veja README.md em resources acerca de como gerar)
-        File certificado = new File(args[0]);
-        System.out.format("Arquivo %s existe? %b", args[0], certificado.exists());
+        File certificado = new File(PEM);
+        System.out.format("Arquivo %s existe? %b", PEM, certificado.exists());
         CertificateLoader cl = new CertificateLoaderImpl();
         X509Certificate x509 = cl.load(certificado);
         System.out.println(x509);
