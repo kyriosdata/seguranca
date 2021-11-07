@@ -20,3 +20,10 @@ Gerado usando openssl:
 
 - `openssl pkcs12 -in keystore.p12 -out keystore.pem`
 
+# Certificado (crt) 
+
+- `openssl pkcs12 -in keystore.p12 -nokeys -out keystore.crt`
+
+# Certificado (cer)
+
+- `keytool -export -alias first-key-pair -storepass keystore -file first-key-pair.cer -keystore keystore.jks`
