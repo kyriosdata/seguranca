@@ -10,7 +10,6 @@
 
 - Senha: keystore
 
-
 # Keystore no formato PEM (keystore.pem)
 
 - Senha: keystore
