@@ -1,20 +1,29 @@
+const https = require("https");
 const path = require("path");
 const express = require("express");
+const fs = require("fs");
 
-const aplicacao = express();
+const app = express();
 
-// Porta padrão (3000) se não definida na var de ambiente
-const PORT = process.env.PORT || 3000;
-
-aplicacao.get("/", (req, res) => {
+app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-aplicacao.get("/segredo", (req, res) => {
+app.get("/segredo", (req, res) => {
     return res.send("Segredo");
 });
 
-aplicacao.listen(PORT, () => {
+// Configurações
+const PORT = process.env.PORT || 3000;
+const PASSPHRASE = "privatekey";
+
+const OPTIONS = {
+    key: fs.readFileSync("key.pem"),
+    cert: fs.readFileSync("cert.pem"),
+    passphrase: PASSPHRASE,
+};
+
+https.createServer(OPTIONS, app).listen(PORT, () => {
     console.log(`Aguardando na porta ${PORT}`);
 });
 
