@@ -1,6 +1,9 @@
 ## Segurança usando SSO (Single Sign-On)
 
-### Gerando certificado (https)
+### Gerando certificado self-signed (para uso de https)
+
+Provavelmente a ferramenta mais recomendada 
+seja [openssl](https://www.openssl.org/). 
 
 O comando abaixo irá requisitar uma senha (_passphrase_) 
 para acesso ao certificado a ser gerado, use o valor "privatekey".
