@@ -18,9 +18,11 @@ public class Certificado {
     final static String CRT = "src/main/resources/keystore.crt";
     final static String PEM = "src/main/resources/keystore.pem";
 
-    public static void main(String[] args) throws Exception {
-        // Arquivos: .cer, .crt (veja README.md em resources acerca de como gerar)
-        final String certificadoArquivo = args.length == 1 ? args[0] : CER;
+    public static void main(String[] args) {
+        String certificadoArquivo = System.getenv("CERTIFICADO_SIGNER");
+        if (certificadoArquivo == null) {
+            certificadoArquivo = args.length == 1 ? args[0] : CER;
+        }
 
         File certificado = new File(certificadoArquivo);
         System.out.format("Arquivo %s existe? %b\n",
@@ -28,9 +30,9 @@ public class Certificado {
         CertificateLoader cl = new CertificateLoaderImpl();
         X509Certificate x509 = cl.load(certificado);
 
-        CertificateManager cm = new CertificateManager(x509, false);
+        CertificateManager cm = new CertificateManager(x509, true);
         DetalhesCertificado dc = cm.load(DetalhesCertificado.class);
-        System.out.format("Nome: %s", dc.getName());
+        System.out.println(dc);
     }
 }
 

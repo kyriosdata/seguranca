@@ -18,8 +18,13 @@
 
         <dependency>
             <groupId>org.demoiselle.signer</groupId>
-            <artifactId>core</artifactId>
-            <version>3.7.1</version>
+            <artifactId>policy-impl-cades</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.demoiselle.signer</groupId>
+            <artifactId>chain-icp-brasil</artifactId>
+            <version>4.0.0</version>
         </dependency>
 
     </dependencies>

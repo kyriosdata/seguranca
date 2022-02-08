@@ -19,9 +19,10 @@ Gerado usando openssl:
 
 - `openssl pkcs12 -in keystore.p12 -out keystore.pem`
 
-# Certificado (crt) 
+# Certificado crt a partir de pfx 
 
 - `openssl pkcs12 -in keystore.p12 -nokeys -out keystore.crt`
+- `openssl pkcs12 -in certificado.pfx -clcerts -nokeys -out thalyta.crt`
 
 # Certificado (cer)
 

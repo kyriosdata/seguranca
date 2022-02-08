@@ -8,14 +8,22 @@ public class DetalhesCertificado {
     @ICPBrasilExtension(type = ICPBrasilExtensionType.NAME)
     public String name;
 
+    @ICPBrasilExtension(type = ICPBrasilExtensionType.CPF)
+    public String cpf;
+
+    @ICPBrasilExtension(type = ICPBrasilExtensionType.EMAIL)
+    public String email;
+
     public String getName() {
         return name;
     }
 
     @Override
     public String toString() {
-        return "DetalhesCertificado{" +
-                ", nome='" + name + '\'' +
+        return "DetalhesCertificado\n" +
+                "\tnome=" + name + '\n' +
+                "\tcpf=" + cpf + "\n" +
+                "\temail=" + email + "\n" +
                 '}';
     }
 }
