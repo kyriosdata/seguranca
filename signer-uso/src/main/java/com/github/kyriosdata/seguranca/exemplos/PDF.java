@@ -10,12 +10,18 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature;
 import org.apache.pdfbox.util.Hex;
+import org.demoiselle.signer.cryptography.DigestAlgorithmEnum;
+import org.demoiselle.signer.policy.impl.cades.SignatureInformations;
+import org.demoiselle.signer.policy.impl.cades.SignerAlgorithmEnum;
+import org.demoiselle.signer.policy.impl.pades.pkcs7.impl.PAdESChecker;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
@@ -142,6 +148,22 @@ public final class PDF {
             if (c != '>') {
                 System.err.println("'>' expected at offset " + byteRange[2] + ", but got " + (char) c);
             }
+
+            PAdESChecker checker = new PAdESChecker();
+
+            // gera o hash do arquivo que foi assinado
+
+            MessageDigest md = null;
+            try {
+                md = MessageDigest.getInstance(DigestAlgorithmEnum.SHA_256.getAlgorithm());
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
+
+            byte[] hash = md.digest(contentFromFile);
+
+            List<SignatureInformations> signaturesInfo = checker.checkSignatureByHash(SignerAlgorithmEnum.SHA256withRSA.getOIDAlgorithmHash(), hash, contents);
+
         }
     }
 
