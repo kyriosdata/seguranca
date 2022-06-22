@@ -18,6 +18,12 @@
 
         <dependency>
             <groupId>org.demoiselle.signer</groupId>
+            <artifactId>policy-impl-pades</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.demoiselle.signer</groupId>
             <artifactId>policy-impl-cades</artifactId>
             <version>4.0.0</version>
         </dependency>
