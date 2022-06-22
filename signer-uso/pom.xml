@@ -17,6 +17,12 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.0-RC1</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.demoiselle.signer</groupId>
             <artifactId>policy-impl-pades</artifactId>
             <version>4.0.0</version>

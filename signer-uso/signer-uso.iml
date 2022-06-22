@@ -10,6 +10,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: org.apache.pdfbox:pdfbox:3.0.0-RC1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.pdfbox:fontbox:3.0.0-RC1" level="project" />
+    <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.2" level="project" />
     <orderEntry type="library" name="Maven: org.demoiselle.signer:policy-impl-pades:4.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.demoiselle.signer:signer-core:4.0.0" level="project" />
     <orderEntry type="library" name="Maven: com.sun.xml.bind:jaxb-core:2.3.0.1" level="project" />
