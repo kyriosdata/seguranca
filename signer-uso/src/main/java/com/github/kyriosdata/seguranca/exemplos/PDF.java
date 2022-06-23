@@ -1,13 +1,13 @@
 package com.github.kyriosdata.seguranca.exemplos;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.pdfbox.cos.*;
+import org.apache.pdfbox.cos.COSArray;
+import org.apache.pdfbox.cos.COSBase;
+import org.apache.pdfbox.cos.COSObject;
+import org.apache.pdfbox.cos.COSStream;
 import org.apache.pdfbox.io.IOUtils;
 import org.apache.pdfbox.io.RandomAccessReadBufferedFile;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.encryption.SecurityProvider;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.COSFilterInputStream;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature;
@@ -31,12 +31,14 @@ import org.demoiselle.signer.policy.impl.cades.SignatureInformations;
 import org.demoiselle.signer.policy.impl.cades.SignerAlgorithmEnum;
 import org.demoiselle.signer.policy.impl.pades.pkcs7.impl.PAdESChecker;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -65,55 +67,47 @@ public final class PDF {
         Security.setProperty("crypto.policy", "unlimited");
 
         PDF show = new PDF();
-        show.extraiAssinatura("d:/downloads/assinado.pdf");
+        PdfData dados = show.extraiDados("d:/downloads/assinado.pdf", "");
     }
 
-    private void extraiAssinatura(String arquivo) throws IOException, OperatorCreationException, GeneralSecurityException, TSPException, CMSException {
+    private PdfData extraiDados(String arquivo, String password) throws IOException, OperatorCreationException, GeneralSecurityException, TSPException, CMSException {
         System.out.println("Arquivo a ser analisado: " + arquivo);
-        String password = "";
         File infile = new File(arquivo);
+        PdfData resposta = new PdfData();
 
         RandomAccessReadBufferedFile raFile = new RandomAccessReadBufferedFile(infile);
         PDFParser parser = new PDFParser(raFile, password);
         try (PDDocument document = parser.parse(false)) {
             List<PDSignature> signatureDictionaries = document.getSignatureDictionaries();
             if (signatureDictionaries.isEmpty()) {
-                System.out.println("Arquivo não contém assinatura.");
-                return;
+                throw new RuntimeException("Arquivo não contém assinatura.");
             }
 
-            System.out.println("Assinatura presente no arquivo.");
-            System.out.println("Total de assinaturas: " + signatureDictionaries.size());
             for (PDSignature sig : signatureDictionaries) {
+                byte[] assinatura = sig.getContents();
 
-                byte[] contents = sig.getContents();
+                resposta.assinatura = assinatura;
 
-                Path path = Paths.get(arquivo + ".p7s");
-                Files.write(path, contents);
-
-                if (sig.getName() != null) {
-                    System.out.println("Name:     " + sig.getName());
-                }
                 if (sig.getSignDate() != null) {
                     SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-                    System.out.println("Data da assinatura: " + sdf.format(sig.getSignDate().getTime()));
+                    resposta.dataAssinatura = sdf.format(sig.getSignDate().getTime());
                 }
-                String subFilter = sig.getSubFilter();
-                if (subFilter != null) {
-                    System.out.println("Subfilter: " + subFilter);
-                } else {
-                    System.out.println("Subfilter não encontrado?... ");
-                    return;
+
+                resposta.subfilter = sig.getSubFilter();
+                if (resposta.subfilter == null) {
+                    throw new RuntimeException("subfilter não encontrado?!");
                 }
 
                 FileInputStream fis = new FileInputStream(infile);
                 InputStream signedContentAsStream = new COSFilterInputStream(fis, sig.getByteRange());
 
-                // Just to generate file content that was signed
-//                Path signed = Paths.get(arquivo + ".signed");
-//                Files.copy(signedContentAsStream, signed, StandardCopyOption.REPLACE_EXISTING);
+                try {
+                    resposta.dadosAssinados = signedContentAsStream.readAllBytes();
+                } catch (Exception exp) {
+                    throw new RuntimeException("erro ao carregar conteúdo assinado...");
+                }
 
-                verifyPKCS7(signedContentAsStream, contents, sig);
+                //verifyPKCS7(signedContentAsStream, assinatura, sig);
 
                 int[] byteRange = sig.getByteRange();
                 if (byteRange.length != 4) {
@@ -122,20 +116,18 @@ public final class PDF {
                     long fileLen = infile.length();
                     long rangeMax = byteRange[2] + (long) byteRange[3];
                     // multiply content length with 2 (because it is in hex in the PDF) and add 2 for < and >
-                    int contentLen = contents.length * 2 + 2;
-                    if (fileLen != rangeMax || byteRange[0] != 0 || byteRange[1] + contentLen != byteRange[2]) {
-                        // a false result doesn't necessarily mean that the PDF is a fake
-                        // see this answer why:
-                        // https://stackoverflow.com/a/48185913/535646
-                        System.out.println("Assinatura NÃO contempla todo o documento.");
-                    } else {
-                        System.out.println("Assinatura contempla todo o documento.");
-                    }
-                    checkContentValueWithFile(infile, byteRange, contents);
+                    int contentLen = assinatura.length * 2 + 2;
+                    // a false result doesn't necessarily mean that the PDF is a fake
+                    // see this answer why:
+                    // https://stackoverflow.com/a/48185913/535646
+                    resposta.todoPdfContemlado =
+                            fileLen == rangeMax && byteRange[0] == 0 && byteRange[1] + contentLen == byteRange[2];
+                    checkContentValueWithFile(infile, byteRange, assinatura);
                 }
             }
-            analyseDSS(document);
         }
+
+        return resposta;
     }
 
     private void checkContentValueWithFile(File file, int[] byteRange, byte[] contents) throws IOException {
@@ -202,35 +194,6 @@ public final class PDF {
 
             List<SignatureInformations> signaturesInfo = checker.checkSignatureByHash(SignerAlgorithmEnum.SHA256withRSA.getOIDAlgorithmHash(), hash, contents);
             System.out.println(signaturesInfo.size());
-        }
-    }
-
-    /**
-     * Analyzes the DSS-Dictionary (Document Security Store) of the document. Which is used for signature validation.
-     * The DSS is defined in PAdES Part 4 - Long Term Validation.
-     *
-     * @param document PDDocument, to get the DSS from
-     */
-    private void analyseDSS(PDDocument document) throws IOException {
-        PDDocumentCatalog catalog = document.getDocumentCatalog();
-        COSBase dssElement = catalog.getCOSObject().getDictionaryObject("DSS");
-
-        if (dssElement instanceof COSDictionary) {
-            COSDictionary dss = (COSDictionary) dssElement;
-            System.out.println("DSS Dictionary: " + dss);
-            COSBase certsElement = dss.getDictionaryObject("Certs");
-            if (certsElement instanceof COSArray) {
-                printStreamsFromArray((COSArray) certsElement, "Cert");
-            }
-            COSBase ocspsElement = dss.getDictionaryObject("OCSPs");
-            if (ocspsElement instanceof COSArray) {
-                printStreamsFromArray((COSArray) ocspsElement, "Ocsp");
-            }
-            COSBase crlElement = dss.getDictionaryObject("CRLs");
-            if (crlElement instanceof COSArray) {
-                printStreamsFromArray((COSArray) crlElement, "CRL");
-            }
-            // TODO: go through VRIs (which indirectly point to the DSS-Data)
         }
     }
 
