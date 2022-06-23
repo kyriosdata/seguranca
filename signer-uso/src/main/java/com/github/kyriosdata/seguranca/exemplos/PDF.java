@@ -1,11 +1,6 @@
 package com.github.kyriosdata.seguranca.exemplos;
 
-import org.apache.pdfbox.cos.COSArray;
-import org.apache.pdfbox.cos.COSBase;
-import org.apache.pdfbox.cos.COSObject;
-import org.apache.pdfbox.cos.COSStream;
-import org.apache.pdfbox.io.IOUtils;
-import org.apache.pdfbox.io.RandomAccessReadBufferedFile;
+import org.apache.pdfbox.io.*;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.SecurityProvider;
@@ -31,10 +26,7 @@ import org.demoiselle.signer.policy.impl.cades.SignatureInformations;
 import org.demoiselle.signer.policy.impl.cades.SignerAlgorithmEnum;
 import org.demoiselle.signer.policy.impl.pades.pkcs7.impl.PAdESChecker;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -66,16 +58,21 @@ public final class PDF {
     public static void main(String[] args) throws IOException, OperatorCreationException, GeneralSecurityException, TSPException, CMSException {
         Security.setProperty("crypto.policy", "unlimited");
 
-        PDF show = new PDF();
-        PdfData dados = show.extraiDados("d:/downloads/assinado.pdf", "");
+        PDF pdf = new PDF();
+        final File infile = new File("d:/downloads/assinado.pdf");
+        PdfData dados = pdf.extraiDados("d:/downloads/assinado.pdf", "", infile, new FileInputStream(infile));
+
+        validaICPBrasil(dados.assinatura, dados.dadosAssinados);
     }
 
-    private PdfData extraiDados(String arquivo, String password) throws IOException, OperatorCreationException, GeneralSecurityException, TSPException, CMSException {
+    private PdfData extraiDados(String arquivo, String password, File infile, InputStream is) throws IOException, OperatorCreationException, GeneralSecurityException, TSPException, CMSException {
+        byte[] conteudo = is.readAllBytes();
+        InputStream bis = new ByteArrayInputStream(conteudo);
+
         System.out.println("Arquivo a ser analisado: " + arquivo);
-        File infile = new File(arquivo);
         PdfData resposta = new PdfData();
 
-        RandomAccessReadBufferedFile raFile = new RandomAccessReadBufferedFile(infile);
+        RandomAccessRead raFile = new RandomAccessReadBuffer(bis);
         PDFParser parser = new PDFParser(raFile, password);
         try (PDDocument document = parser.parse(false)) {
             List<PDSignature> signatureDictionaries = document.getSignatureDictionaries();
@@ -98,8 +95,8 @@ public final class PDF {
                     throw new RuntimeException("subfilter não encontrado?!");
                 }
 
-                FileInputStream fis = new FileInputStream(infile);
-                InputStream signedContentAsStream = new COSFilterInputStream(fis, sig.getByteRange());
+                bis.reset();
+                InputStream signedContentAsStream = new COSFilterInputStream(bis, sig.getByteRange());
 
                 try {
                     resposta.dadosAssinados = signedContentAsStream.readAllBytes();
@@ -122,7 +119,7 @@ public final class PDF {
                     // https://stackoverflow.com/a/48185913/535646
                     resposta.todoPdfContemlado =
                             fileLen == rangeMax && byteRange[0] == 0 && byteRange[1] + contentLen == byteRange[2];
-                    checkContentValueWithFile(infile, byteRange, assinatura);
+                    checkContent(raFile, byteRange, assinatura);
                 }
             }
         }
@@ -130,92 +127,71 @@ public final class PDF {
         return resposta;
     }
 
-    private void checkContentValueWithFile(File file, int[] byteRange, byte[] contents) throws IOException {
+    private void checkContent(RandomAccessRead raf, int[] byteRange, byte[] contents) throws IOException {
         // https://stackoverflow.com/questions/55049270
         // comment by mkl: check whether gap contains a hex value equal
         // byte-by-byte to the Content value, to prevent attacker from using a literal string
         // to allow extra space
-        try (RandomAccessReadBufferedFile raf = new RandomAccessReadBufferedFile(file)) {
-            raf.seek(byteRange[1]);
-            int c = raf.read();
-            if (c != '<') {
-                System.err.println("'<' expected at offset " + byteRange[1] + ", but got " + (char) c);
-            }
-            byte[] contentFromFile = new byte[byteRange[2] - byteRange[1] - 2];
-            int contentLength = contentFromFile.length;
-            int contentBytesRead = raf.read(contentFromFile);
-            while (contentBytesRead > -1 && contentBytesRead < contentLength) {
-                contentBytesRead += raf.read(contentFromFile,
-                        contentBytesRead,
-                        contentLength - contentBytesRead);
-            }
-            byte[] contentAsHex = Hex.getString(contents).getBytes(StandardCharsets.US_ASCII);
-            if (contentBytesRead != contentAsHex.length) {
-                System.err.println("Raw content length from file is " +
-                        contentBytesRead +
-                        ", but internal content string in hex has length " +
-                        contentAsHex.length);
-            }
-            // Compare the two, we can't do byte comparison because of upper/lower case
-            // also check that it is really hex
-            for (int i = 0; i < contentBytesRead; ++i) {
-                try {
-                    if (Integer.parseInt(String.valueOf((char) contentFromFile[i]), 16) !=
-                            Integer.parseInt(String.valueOf((char) contentAsHex[i]), 16)) {
-                        System.err.println("Possible manipulation at file offset " +
-                                (byteRange[1] + i + 1) + " in signature content");
-                        break;
-                    }
-                } catch (NumberFormatException ex) {
-                    System.err.println("Incorrect hex value");
+        raf.seek(byteRange[1]);
+        int c = raf.read();
+        if (c != '<') {
+            System.err.println("'<' expected at offset " + byteRange[1] + ", but got " + (char) c);
+        }
+        byte[] contentFromFile = new byte[byteRange[2] - byteRange[1] - 2];
+        int contentLength = contentFromFile.length;
+        int contentBytesRead = raf.read(contentFromFile);
+        while (contentBytesRead > -1 && contentBytesRead < contentLength) {
+            contentBytesRead += raf.read(contentFromFile,
+                    contentBytesRead,
+                    contentLength - contentBytesRead);
+        }
+        byte[] contentAsHex = Hex.getString(contents).getBytes(StandardCharsets.US_ASCII);
+        if (contentBytesRead != contentAsHex.length) {
+            System.err.println("Raw content length from file is " +
+                    contentBytesRead +
+                    ", but internal content string in hex has length " +
+                    contentAsHex.length);
+        }
+        // Compare the two, we can't do byte comparison because of upper/lower case
+        // also check that it is really hex
+        for (int i = 0; i < contentBytesRead; ++i) {
+            try {
+                if (Integer.parseInt(String.valueOf((char) contentFromFile[i]), 16) !=
+                        Integer.parseInt(String.valueOf((char) contentAsHex[i]), 16)) {
                     System.err.println("Possible manipulation at file offset " +
                             (byteRange[1] + i + 1) + " in signature content");
                     break;
                 }
+            } catch (NumberFormatException ex) {
+                System.err.println("Incorrect hex value");
+                System.err.println("Possible manipulation at file offset " +
+                        (byteRange[1] + i + 1) + " in signature content");
+                break;
             }
-            c = raf.read();
-            if (c != '>') {
-                System.err.println("'>' expected at offset " + byteRange[2] + ", but got " + (char) c);
-            }
-
-            PAdESChecker checker = new PAdESChecker();
-
-            // gera o hash do arquivo que foi assinado
-
-            MessageDigest md = null;
-            try {
-                md = MessageDigest.getInstance(DigestAlgorithmEnum.SHA_256.getAlgorithm());
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            }
-
-            Path signed = Paths.get("d:/downloads/assinado.pdf.signed");
-            byte[] hash = md.digest(Files.readAllBytes(signed));
-
-            List<SignatureInformations> signaturesInfo = checker.checkSignatureByHash(SignerAlgorithmEnum.SHA256withRSA.getOIDAlgorithmHash(), hash, contents);
-            System.out.println(signaturesInfo.size());
+        }
+        c = raf.read();
+        if (c != '>') {
+            System.err.println("'>' expected at offset " + byteRange[2] + ", but got " + (char) c);
         }
     }
 
-    /**
-     * Go through the elements of a COSArray containing each an COSStream to print in Hex.
-     *
-     * @param elements    COSArray of elements containing a COS Stream
-     * @param description to append on Print
-     * @throws IOException
-     */
-    private void printStreamsFromArray(COSArray elements, String description) throws IOException {
-        for (COSBase baseElem : elements) {
-            COSObject streamObj = (COSObject) baseElem;
-            if (streamObj.getObject() instanceof COSStream) {
-                COSStream cosStream = (COSStream) streamObj.getObject();
-                try (InputStream is = cosStream.createInputStream()) {
-                    byte[] streamBytes = IOUtils.toByteArray(is);
-                    System.out.println(description + " (" + elements.indexOf(streamObj) + "): "
-                            + Hex.getString(streamBytes));
-                }
-            }
+    private static void validaICPBrasil(byte[] assinatura, byte[] conteudoAssinado) throws IOException {
+        PAdESChecker checker = new PAdESChecker();
+
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance(DigestAlgorithmEnum.SHA_256.getAlgorithm());
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
         }
+
+        byte[] hash = md.digest(conteudoAssinado);
+
+        List<SignatureInformations> signaturesInfo = checker.checkSignatureByHash(SignerAlgorithmEnum.SHA256withRSA.getOIDAlgorithmHash(), hash, assinatura);
+
+        // TODO Ver exemplo de como exibir o resultado exemplo em
+        // https://www.frameworkdemoiselle.gov.br/v3/signer/docs/policy-impl-pades-funcionalidades.html
+        System.out.println(signaturesInfo.size());
     }
 
     /**
