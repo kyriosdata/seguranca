@@ -28,9 +28,6 @@ import org.demoiselle.signer.policy.impl.pades.pkcs7.impl.PAdESChecker;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -45,7 +42,12 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * Extrai a assinatura digital do docmento PDF fornecido.
+ * Verifica conformidade de um arquivo PDF assinado com certificado ICP-Brasil.
+ *
+ * FALTA FAZER:
+ * (a) criar função (library) que recebe InputStream do arquivo PDF e retorna
+ * resultado da verificação.
+ * (b) criar aplicativo via linha de comandos que realiza esta operação para um arquivo fornecido como argumento.
  */
 public final class PDF {
 
