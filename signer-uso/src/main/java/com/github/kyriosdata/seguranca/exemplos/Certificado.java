@@ -14,14 +14,15 @@ import java.security.cert.X509Certificate;
  */
 public class Certificado {
 
-    final static String CER = "src/main/resources/keystore.cer";
-    final static String CRT = "src/main/resources/keystore.crt";
-    final static String PEM = "src/main/resources/keystore.pem";
-
+    /**
+     * Usa variável de ambiente 'CERTIFICADO_SIGNER' para arquivo contendo
+     * certificado a ser analisado. Caso não encontrado, usa argumento e,
+     * se não fornecido, usa arquivo 'keystore.cer' (resources).
+     */
     public static void main(String[] args) {
         String certificadoArquivo = System.getenv("CERTIFICADO_SIGNER");
         if (certificadoArquivo == null) {
-            certificadoArquivo = args.length == 1 ? args[0] : CER;
+            certificadoArquivo = args.length == 1 ? args[0] : "src/main/resources/keystore.cer";
         }
 
         File certificado = new File(certificadoArquivo);

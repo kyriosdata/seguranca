@@ -14,10 +14,6 @@ public class DetalhesCertificado {
     @ICPBrasilExtension(type = ICPBrasilExtensionType.EMAIL)
     public String email;
 
-    public String getName() {
-        return name;
-    }
-
     @Override
     public String toString() {
         return "DetalhesCertificado\n" +
