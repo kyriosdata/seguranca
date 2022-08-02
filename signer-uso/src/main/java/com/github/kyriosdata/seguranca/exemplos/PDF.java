@@ -21,17 +21,18 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.tsp.TSPException;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.bouncycastle.util.Store;
+import org.demoiselle.signer.core.CertificateLoader;
+import org.demoiselle.signer.core.CertificateLoaderImpl;
 import org.demoiselle.signer.cryptography.DigestAlgorithmEnum;
 import org.demoiselle.signer.policy.impl.cades.SignatureInformations;
 import org.demoiselle.signer.policy.impl.cades.SignerAlgorithmEnum;
 import org.demoiselle.signer.policy.impl.pades.pkcs7.impl.PAdESChecker;
+import org.demoiselle.signer.policy.impl.pades.pkcs7.impl.PAdESSigner;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.Security;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
@@ -51,20 +52,51 @@ import java.util.List;
  */
 public final class PDF {
 
+    public static final String SRC_PDF = "src/main/resources/arquivo-signer-teste.pdf";
+    public static final String SGN_PDF = "src/main/resources/arquivo-signer-teste_assinado.pdf";
+
     /**
      * Extrai assinatura e deposita em arquivo prório.
      *
      * @param args Caminho do arquivo PDF cuja assinatura será extraída.
      * @throws IOException If there is an error reading the file.
      */
+    public static void main2(String[] args) throws IOException, OperatorCreationException, GeneralSecurityException, TSPException, CMSException {
+        Security.setProperty("crypto.policy", "unlimited");
+
+        PDF pdf = new PDF();
+        final File infile = new File(SGN_PDF);
+        PdfData dados = pdf.extraiDados(SGN_PDF, "", infile, new FileInputStream(infile));
+
+        validaICPBrasil(dados.assinatura, dados.dadosAssinados);
+    }
+
     public static void main(String[] args) throws IOException, OperatorCreationException, GeneralSecurityException, TSPException, CMSException {
         Security.setProperty("crypto.policy", "unlimited");
 
         PDF pdf = new PDF();
-        final File infile = new File("d:/downloads/assinado.pdf");
-        PdfData dados = pdf.extraiDados("d:/downloads/assinado.pdf", "", infile, new FileInputStream(infile));
+        pdf.signPdf();
+    }
 
-        validaICPBrasil(dados.assinatura, dados.dadosAssinados);
+    public void signPdf() throws IOException, KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException, NoSuchProviderException, CertificateException {
+        byte[] content = new FileInputStream(SRC_PDF).readAllBytes();
+
+        String certificadoArquivo = System.getenv("CERTIFICADO_TESTE");
+        String password = System.getenv("CERTIFICADO_SENHA");
+        String alias = System.getenv("CERTIFICADO_ALIAS");
+
+        File certificado = new File(certificadoArquivo);
+        PAdESSigner signer = new PAdESSigner();
+
+        KeyStore store = KeyStore.getInstance("PKCS12");
+        store.load(new FileInputStream(certificado), password.toCharArray());
+
+        signer.setCertificates(store.getCertificateChain(alias));
+
+        signer.setPrivateKey((PrivateKey) store.getKey(alias, password.toCharArray()));
+
+        byte [] assinatura = signer.doDetachedSign(content);
+        System.out.println("Total de bytes: " + assinatura.length);
     }
 
     private PdfData extraiDados(String arquivo, String password, File infile, InputStream is) throws IOException, OperatorCreationException, GeneralSecurityException, TSPException, CMSException {
@@ -119,7 +151,7 @@ public final class PDF {
                     // a false result doesn't necessarily mean that the PDF is a fake
                     // see this answer why:
                     // https://stackoverflow.com/a/48185913/535646
-                    resposta.todoPdfContemlado =
+                    resposta.todoPdfContemplado =
                             fileLen == rangeMax && byteRange[0] == 0 && byteRange[1] + contentLen == byteRange[2];
                     checkContent(raFile, byteRange, assinatura);
                 }
@@ -194,6 +226,16 @@ public final class PDF {
         // TODO Ver exemplo de como exibir o resultado exemplo em
         // https://www.frameworkdemoiselle.gov.br/v3/signer/docs/policy-impl-pades-funcionalidades.html
         System.out.println(signaturesInfo.size());
+    }
+
+    private static void validaICPBrasilPeloConteudo(byte[] assinatura, byte[] conteudoAssinado) throws IOException {
+        PAdESChecker checker = new PAdESChecker();
+
+        List<SignatureInformations> signaturesInfo = checker.checkDetachedSignature(conteudoAssinado, assinatura);
+
+        // TODO Ver exemplo de como exibir o resultado exemplo em
+        // https://www.frameworkdemoiselle.gov.br/v3/signer/docs/policy-impl-pades-funcionalidades.html
+        System.out.println("Assinatura válida: " + !signaturesInfo.get(0).isInvalidSignature());
     }
 
     /**

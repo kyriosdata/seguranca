@@ -27,3 +27,7 @@ Gerado usando openssl:
 # Certificado (cer)
 
 - `keytool -export -alias first-key-pair -storepass keystore -file first-key-pair.cer -keystore keystore.jks`
+
+# Localizar alias de certificado 
+
+- `keytool -list -v -keystore arquivo.pfx -storetype pkcs12`

@@ -6,6 +6,6 @@ public class PdfData {
     public byte[] dadosAssinados;
     public String dataAssinatura;
     public String subfilter;
-    public boolean todoPdfContemlado;
+    public boolean todoPdfContemplado;
 
 }
