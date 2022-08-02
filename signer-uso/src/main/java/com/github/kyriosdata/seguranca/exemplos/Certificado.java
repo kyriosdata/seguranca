@@ -5,6 +5,8 @@ import org.demoiselle.signer.core.CertificateLoaderImpl;
 import org.demoiselle.signer.core.CertificateManager;
 
 import java.io.File;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 
 /**
@@ -34,6 +36,16 @@ public class Certificado {
         CertificateManager cm = new CertificateManager(x509, true);
         DetalhesCertificado dc = cm.load(DetalhesCertificado.class);
         System.out.println(dc);
+
+        try {
+            x509.checkValidity();
+            System.out.println(x509.getNotAfter());
+            System.out.println(x509.getIssuerX500Principal().getName());
+        } catch (CertificateNotYetValidException e) {
+            throw new RuntimeException(e);
+        } catch (CertificateExpiredException e) {
+            System.out.println("Certificado expirado" + e);
+        }
     }
 }
 

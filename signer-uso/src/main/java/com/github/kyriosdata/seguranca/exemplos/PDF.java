@@ -1,11 +1,15 @@
 package com.github.kyriosdata.seguranca.exemplos;
 
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.io.*;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.encryption.SecurityProvider;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.COSFilterInputStream;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature;
+import org.apache.pdfbox.pdmodel.interactive.digitalsignature.SignatureInterface;
 import org.apache.pdfbox.util.Hex;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.CMSAttributes;
@@ -37,10 +41,7 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * Verifica conformidade de um arquivo PDF assinado com certificado ICP-Brasil.
@@ -79,24 +80,30 @@ public final class PDF {
     }
 
     public void signPdf() throws IOException, KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException, NoSuchProviderException, CertificateException {
-        byte[] content = new FileInputStream(SRC_PDF).readAllBytes();
 
         String certificadoArquivo = System.getenv("CERTIFICADO_TESTE");
         String password = System.getenv("CERTIFICADO_SENHA");
         String alias = System.getenv("CERTIFICADO_ALIAS");
 
         File certificado = new File(certificadoArquivo);
-        PAdESSigner signer = new PAdESSigner();
 
         KeyStore store = KeyStore.getInstance("PKCS12");
         store.load(new FileInputStream(certificado), password.toCharArray());
 
+        byte[] assinatura = signer(password, alias, store);
+
+        System.out.println("Total de bytes: " + assinatura.length);
+    }
+
+    public static byte[] signer(String password, String alias, KeyStore store) throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException, IOException {
+        PAdESSigner signer = new PAdESSigner();
         signer.setCertificates(store.getCertificateChain(alias));
 
         signer.setPrivateKey((PrivateKey) store.getKey(alias, password.toCharArray()));
 
+        byte[] content = new FileInputStream(SRC_PDF).readAllBytes();
         byte [] assinatura = signer.doDetachedSign(content);
-        System.out.println("Total de bytes: " + assinatura.length);
+        return assinatura;
     }
 
     private PdfData extraiDados(String arquivo, String password, File infile, InputStream is) throws IOException, OperatorCreationException, GeneralSecurityException, TSPException, CMSException {
